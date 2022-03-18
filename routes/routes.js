@@ -27,15 +27,35 @@ const getUserValidation = {
   }),
 };
 
+const updateUserValidation = {
+  body: Joi.object({
+    firstName: Joi.string().required(),
+    lastName: Joi.string().required(),
+    email: Joi.string().email().required(),
+    password: Joi.string()
+      .regex(/[a-zA-Z0-9]{3,30}/)
+      .required(),
+  }),
+  params: Joi.object({
+    email: Joi.string().email().required(),
+  }),
+};
+
 const databaseController = require("../controller/databaseController");
 
-const { createUser, getUser } = require("../controller/userController");
+const {
+  createUser,
+  getUser,
+  updateUser,
+} = require("../controller/userController");
 
 app.get("/connect", databaseController.connectDatabase);
 
 app.post("/createUser", validate(createUserValidation), createUser);
 
 app.get("/getUser/:email", validate(getUserValidation), getUser);
+
+app.patch("/updateUser/:email", validate(updateUserValidation), updateUser);
 
 app.use(function (err, req, res, next) {
   if (err instanceof ValidationError) {

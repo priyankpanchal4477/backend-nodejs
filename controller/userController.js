@@ -21,7 +21,6 @@ const createUser = async (req, res) => {
         if (rows.length > 0) {
           res.json({
             status: false,
-            data: rows,
             message: "User already registered",
           });
         } else {
@@ -74,7 +73,6 @@ const getUser = async (req, res) => {
       }
     );
 
-
     // Using Prisma
     // const user = await prisma.users.findUnique({
     //   where: {
@@ -93,4 +91,58 @@ const getUser = async (req, res) => {
   }
 };
 
-module.exports = { createUser, getUser };
+const updateUser = async (req, res) => {
+  try {
+    let { firstName, lastName, email, password } = req.body;
+
+    password = md5(password);
+    req.body.password = password;
+
+    // Using MySQL
+
+    let selectQuery = "SELECT * FROM users WHERE email = ?";
+    connection.query(selectQuery, [req.params.email], (err, rows, fields) => {
+      if (rows.length > 0) {
+        const update_query =
+          "UPDATE users set firstName =? , lastName =?, email=?, password=?  WHERE email=?";
+        connection.query(
+          update_query,
+          [firstName, lastName, email, password, req.params.email],
+          (err, rows, fields) => {
+            if (rows?.affectedRows > 0) {
+              connection.query(selectQuery, [email], (err, rows, fields) => {
+                res.json({
+                  data: rows,
+                });
+              });
+            }
+          }
+        );
+      } else {
+        res.json({
+          status: false,
+          message: "User not exists",
+        });
+      }
+    });
+
+    // Using Prisma
+    // const user = await prisma.users.update({
+    //   where: {
+    //     email: req.params.email,
+    //   },
+    //   data: req.body,
+    // });
+
+    // res.json({ data: user });
+  } catch (err) {
+    res.json({
+      Error: {
+        code: err.code,
+        Message: err.message,
+      },
+    });
+  }
+};
+
+module.exports = { createUser, getUser, updateUser };
