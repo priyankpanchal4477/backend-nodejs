@@ -219,7 +219,7 @@ const getAllUsers = async (req, res) => {
           if (rows.length > 0) {
             res.json({
               data: rows,
-              message: "Record deleted successfully",
+              message: "Get all users successfully",
             });
           }
         });
