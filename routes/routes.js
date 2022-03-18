@@ -72,7 +72,7 @@ app.get("/getUser/:email", validate(getUserValidation), getUser);
 
 app.patch("/updateUser/:email", validate(updateUserValidation), updateUser);
 
-app.delete("/updateUser/:email", validate(deleteUserValidation), deleteUser);
+app.delete("/deleteUser/:email", validate(deleteUserValidation), deleteUser);
 
 app.post("/getAllUsers", validate(getAllUsersValidation), getAllUsers);
 
