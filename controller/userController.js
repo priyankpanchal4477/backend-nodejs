@@ -140,7 +140,7 @@ const updateUser = async (req, res) => {
     //   data: req.body,
     // });
 
-    // res.json({ data: user });
+    // res.json({ data: user, message: "Record updated successfully", });
   } catch (err) {
     res.json({
       Error: {
@@ -155,6 +155,8 @@ const deleteUser = async (req, res) => {
   try {
     const { email } = req.params;
 
+    // Using MySQL
+
     let selectQuery = "SELECT * FROM users WHERE email = ?";
     connection.query(selectQuery, [email], (err, rows, fields) => {
       if (rows.length > 0) {
@@ -166,7 +168,10 @@ const deleteUser = async (req, res) => {
               message: "Record deleted successfully",
             });
           } else {
-            message: "Record not deleted",
+            res.json({
+              data: rows,
+              message: "Record not deleted",
+            });
           }
         });
       } else {
@@ -175,6 +180,18 @@ const deleteUser = async (req, res) => {
         });
       }
     });
+
+    // Using Prisma
+
+    // const user = await prisma.user.delete({
+    //   where: {
+    //     email: "bert@prisma.io",
+    //   },
+    // });
+    // res.json({
+    //   data: user,
+    //   message: "Record deleted successfully",
+    // });
   } catch (err) {
     res.json({
       Error: {
@@ -184,4 +201,5 @@ const deleteUser = async (req, res) => {
     });
   }
 };
-module.exports = { createUser, getUser, updateUser, deleteUser };
+
+module.exports = { createUser, getUser, updateUser, deleteUser, getAllUsers };
