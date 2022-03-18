@@ -20,7 +20,6 @@ const createUser = async (req, res) => {
       (err, rows, fields) => {
         if (rows.length > 0) {
           res.json({
-            status: false,
             message: "User already registered",
           });
         } else {
@@ -29,7 +28,7 @@ const createUser = async (req, res) => {
             query,
             [firstName, lastName, email, password],
             (err, rows, fields) => {
-              res.json({ data: rows });
+              res.json({ data: rows, message: "Record created successfully" });
             }
           );
         }
@@ -41,7 +40,7 @@ const createUser = async (req, res) => {
     //   data: req.body,
     // });
 
-    // res.json({ data: user });
+    // res.json({ data: user, message: "Record created successfully" });
   } catch (err) {
     res.json({
       Error: {
@@ -64,10 +63,12 @@ const getUser = async (req, res) => {
         if (rows.length > 0) {
           res.json({
             data: rows,
+            message: "User get successfully",
           });
         } else {
           res.json({
             data: [],
+            message: "User not exists",
           });
         }
       }
@@ -80,7 +81,7 @@ const getUser = async (req, res) => {
     //   },
     // });
 
-    // res.json({ data: user });
+    // res.json({ data: user, message: "User get successfully" });
   } catch (err) {
     res.json({
       Error: {
@@ -113,14 +114,19 @@ const updateUser = async (req, res) => {
               connection.query(selectQuery, [email], (err, rows, fields) => {
                 res.json({
                   data: rows,
+                  message: "Record updated successfully",
                 });
+              });
+            } else {
+              res.json({
+                data: [],
+                message: "Record not updated",
               });
             }
           }
         );
       } else {
         res.json({
-          status: false,
           message: "User not exists",
         });
       }
@@ -145,4 +151,37 @@ const updateUser = async (req, res) => {
   }
 };
 
-module.exports = { createUser, getUser, updateUser };
+const deleteUser = async (req, res) => {
+  try {
+    const { email } = req.params;
+
+    let selectQuery = "SELECT * FROM users WHERE email = ?";
+    connection.query(selectQuery, [email], (err, rows, fields) => {
+      if (rows.length > 0) {
+        const delete_query = "DELETE FROM users WHERE email = ?";
+        connection.query(delete_query, [email], (err, rows, fields) => {
+          if (rows?.affectedRows > 0) {
+            res.json({
+              data: rows,
+              message: "Record deleted successfully",
+            });
+          } else {
+            message: "Record not deleted",
+          }
+        });
+      } else {
+        res.json({
+          message: "User not exists",
+        });
+      }
+    });
+  } catch (err) {
+    res.json({
+      Error: {
+        code: err.code,
+        Message: err.message,
+      },
+    });
+  }
+};
+module.exports = { createUser, getUser, updateUser, deleteUser };
