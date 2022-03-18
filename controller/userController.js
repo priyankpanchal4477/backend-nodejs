@@ -3,7 +3,7 @@ const prisma = new PrismaClient();
 
 const { connection } = require("../config/dbConnection");
 
-var md5 = require("md5");
+let md5 = require("md5");
 
 const createUser = async (req, res) => {
   // const users = await prisma.users.findMany();
@@ -28,7 +28,15 @@ const createUser = async (req, res) => {
             query,
             [firstName, lastName, email, password],
             (err, rows, fields) => {
-              res.json({ data: rows, message: "Record created successfully" });
+              if (rows?.affectedRows > 0) {
+                let selectQuery = "SELECT * FROM users WHERE email = ?";
+                connection.query(selectQuery, [email], (err, rows, fields) => {
+                  res.json({
+                    data: rows,
+                    message: "Record created successfully",
+                  });
+                });
+              }
             }
           );
         }
@@ -164,12 +172,10 @@ const deleteUser = async (req, res) => {
         connection.query(delete_query, [email], (err, rows, fields) => {
           if (rows?.affectedRows > 0) {
             res.json({
-              data: rows,
               message: "Record deleted successfully",
             });
           } else {
             res.json({
-              data: rows,
               message: "Record not deleted",
             });
           }
@@ -202,4 +208,30 @@ const deleteUser = async (req, res) => {
   }
 };
 
+const getAllUsers = async (req, res) => {
+  try {
+    const { email, adminToken } = req.body;
+    let selectQuery = "SELECT * FROM admins WHERE email=? AND adminToken = ?";
+    connection.query(selectQuery, [email, adminToken], (err, rows, fields) => {
+      if (rows.length > 0) {
+        const selectAllQuery = "SELECT * FROM users";
+        connection.query(selectAllQuery, (err, rows, fields) => {
+          if (rows.length > 0) {
+            res.json({
+              data: rows,
+              message: "Record deleted successfully",
+            });
+          }
+        });
+      }
+    });
+  } catch (err) {
+    res.json({
+      Error: {
+        code: err.code,
+        Message: err.message,
+      },
+    });
+  }
+};
 module.exports = { createUser, getUser, updateUser, deleteUser, getAllUsers };

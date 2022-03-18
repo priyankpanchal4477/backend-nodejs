@@ -42,10 +42,17 @@ const updateUserValidation = {
 };
 
 const deleteUserValidation = {
-    params: Joi.object({
-      email: Joi.string().email().required(),
-    }),
-  };
+  params: Joi.object({
+    email: Joi.string().email().required(),
+  }),
+};
+
+const getAllUsersValidation = {
+  body: Joi.object({
+    adminToken: Joi.string().required(),
+    email: Joi.string().email().required(),
+  }),
+};
 
 const databaseController = require("../controller/databaseController");
 
@@ -53,7 +60,8 @@ const {
   createUser,
   getUser,
   updateUser,
-  deleteUser
+  deleteUser,
+  getAllUsers,
 } = require("../controller/userController");
 
 app.get("/connect", databaseController.connectDatabase);
@@ -65,6 +73,8 @@ app.get("/getUser/:email", validate(getUserValidation), getUser);
 app.patch("/updateUser/:email", validate(updateUserValidation), updateUser);
 
 app.delete("/updateUser/:email", validate(deleteUserValidation), deleteUser);
+
+app.post("/getAllUsers", validate(getAllUsersValidation), getAllUsers);
 
 app.use(function (err, req, res, next) {
   if (err instanceof ValidationError) {
