@@ -11,7 +11,6 @@ generator client {
 }
 
 model admins {
-  id         Int    @id @default(autoincrement())
   firstName  String @default("")
   lastName   String @default("")
   email      String @unique
@@ -20,7 +19,6 @@ model admins {
 }
 
 model users {
-  id        Int    @id @default(autoincrement())
   firstName String @default("")
   lastName  String @default("")
   email     String @unique
