@@ -13,7 +13,6 @@ const createUser = async (req, res) => {
     password = md5(password);
     req.body.password = password;
 
-    
     // Using MySQL
     connection.query(
       "SELECT * FROM users WHERE email = ?",
@@ -38,7 +37,6 @@ const createUser = async (req, res) => {
       }
     );
 
-    
     // Using Prisma
     // const user = await prisma.users.create({
     //   data: req.body,
@@ -55,4 +53,44 @@ const createUser = async (req, res) => {
   }
 };
 
-module.exports = { createUser };
+const getUser = async (req, res) => {
+  try {
+    const { email } = req.params;
+
+    // Using MySQL
+    connection.query(
+      "SELECT * FROM users WHERE email = ?",
+      [email],
+      (err, rows, fields) => {
+        if (rows.length > 0) {
+          res.json({
+            data: rows,
+          });
+        } else {
+          res.json({
+            data: [],
+          });
+        }
+      }
+    );
+
+
+    // Using Prisma
+    // const user = await prisma.users.findUnique({
+    //   where: {
+    //     email: email,
+    //   },
+    // });
+
+    // res.json({ data: user });
+  } catch (err) {
+    res.json({
+      Error: {
+        code: err.code,
+        Message: err.message,
+      },
+    });
+  }
+};
+
+module.exports = { createUser, getUser };

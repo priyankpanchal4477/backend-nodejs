@@ -21,13 +21,21 @@ const createUserValidation = {
   }),
 };
 
+const getUserValidation = {
+  params: Joi.object({
+    email: Joi.string().email().required(),
+  }),
+};
+
 const databaseController = require("../controller/databaseController");
 
-const { createUser } = require("../controller/userController");
+const { createUser, getUser } = require("../controller/userController");
 
 app.get("/connect", databaseController.connectDatabase);
 
 app.post("/createUser", validate(createUserValidation), createUser);
+
+app.get("/getUser/:email", validate(getUserValidation), getUser);
 
 app.use(function (err, req, res, next) {
   if (err instanceof ValidationError) {
